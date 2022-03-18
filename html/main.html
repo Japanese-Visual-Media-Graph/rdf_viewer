@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title></title>
+<form class="search">
+  <label for="uri">URI:</label>
+  <input type="text" id="uri" placeholder="URI">
+  <button id="search">Search</button>
+</form>
+
+<h1></h1>
+
+<template class="graph">
+  <div class="data">
+    <h3></h3>
+    <table>
+      <thead>
+        <tr>
+          <th>Property</th><th>Value</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+      <template class="predicate">
+        <tr>
+          <td><a href=""></a></td>
+          <td></td>
+        </tr>
+      </template>
+    </table>
+  </div>
+</template>
+<script>
+ let sparql_data = null;
+
+ async function get_data(uri){
+   // fetch data from server
+   request_uri = location.href + (location.href.includes("?") ? "&" : "?") + (new URLSearchParams({search: uri})).toString()
+
+   data = await fetch(request_uri, {headers:{"Accept":"application/json"}})
+     .then(response => response.json())
+
+   // delete the old content which might be there
+   for (div of document.querySelectorAll("div.data")){
+     div.remove()
+   }
+
+   function create_span(item){
+     let span = document.createElement("span")
+     span.textContent = item["literal"]
+     if (item["language"]){
+       span.lang = item["language"]
+     }
+     return span
+   }
+
+   function create_href(item){
+     let a = document.createElement("a")
+     a.href = item["uri"]
+     if (item["labels"].length != 0){
+       for (label of item["labels"]){
+         let span = create_span(label)
+         a.append(span)
+       }
+     } else {
+       a.append(item["uri"])
+     }
+
+     return a
+   }
+
+   label_for_title = ""
+   for (label of data["resource_label"]){
+     label_for_title += label["literal"] + " "
+   }
+
+   document.querySelector("title").textContent = label_for_title
+   document.querySelector("h1").textContent = label_for_title
+
+   // create new table with triple information
+   for (const [graph_name, predicates] of Object.entries(data["data"])) {
+     const graph_template = document.querySelector("template.graph")
+     const graph = graph_template.content.cloneNode(true)
+     graph.querySelector("h3").append(graph_name)
+     const predicate_template = graph.querySelector("template.predicate")
+     const tbody = graph.querySelector("tbody")
+
+     for (const predicate of predicates){
+       const tr = predicate_template.content.cloneNode(true).querySelector("tr")
+       // create predicates
+       const a = tr.querySelector("td:nth-of-type(1) > a")
+       a.href = predicate["predicate"]
+       if (predicate["labels"].length > 0){
+         for (label of predicate["labels"]){
+           let span = create_span(label)
+           a.append(span)
+         }
+       } else {
+         let span = document.createElement("span")
+         span.textContent = predicate["predicate"]
+         a.append(span)
+       }
+
+       if (predicate["direction"] == "in"){
+         a.before("is ")
+         a.after(" of")
+       }
+
+
+       // create objects
+       objects = predicate["objects"]
+       const td = tr.querySelector("td:nth-of-type(2)")
+       if (objects.length == 1){
+         object = objects[0]
+         if (object["uri"]) {
+           let a = create_href(object)
+           td.append(a)
+         } else {
+           let span = create_span(object)
+           td.append(span)
+         }
+       } else {
+         const ul = document.createElement("ul")
+         for (object of objects){
+           const li = document.createElement("li")
+           if (object["uri"]) {
+             let a = create_href(object)
+             li.append(a)
+           }else {
+             let span = create_span(object)
+             li.append(span)
+           }
+           ul.append(li)
+         }
+         td.append(ul)
+       }
+
+       tbody.append(tr)
+     }
+
+     document.body.append(graph)
+   }
+ }
+
+ // eventListener to load new triple data if an URI is searched
+ document.querySelector("#search").addEventListener("click", event => {
+   let uri_field = document.querySelector("#uri")
+   get_data(uri_field.value)
+   event.preventDefault()
+ })
+
+ // eventListener to load new triple data if an URI-link is clicked
+ document.querySelector("body").addEventListener("click", event => {
+   if (event.target.matches("a span")){
+     let uri_field = document.querySelector("#uri")
+     const uri = event.target.parentElement.href
+     uri_field.value = uri
+     get_data(uri)
+     event.preventDefault()
+   }
+ })
+
+</script>
+<style>
+ html { font-family: sans-serif; background: hsl(0, 0%, 95%); color: hsl(0, 0%, 10%);
+   margin: 0; padding: 25px 50px; }
+ body { background: white; box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+   margin: 0; padding: 20px; position: relative; }
+
+ h1 { font-size: 35px; margin: 0; padding: 10px 0 20px 10px; }
+ a { color: hsl(210, 60%, 50%); text-decoration: none; }
+ a:hover, a:focus, a:active { color: hsl(210, 60%, 25%); text-decoration: underline; }
+
+ table { border-spacing: 0; box-sizing: border-box; width: 100%;  }
+ table th { text-align: left; padding: 10px; }
+ table td { vertical-align: top; padding: 10px; }
+ table td ul { margin: 0; padding: 0; list-style: outside; column-width: 400px; }
+ table td ul > li { margin: 3px 0; break-inside: avoid; }
+ table tr:nth-of-type(even) td { background: hsl(0, 0%, 90%); }
+ table tr td:nth-of-type(1) { width: 200px; }
+ /* table td span { white-space: pre-line; } */
+
+ a.graph { color: gray; font-size: 0.77em; }
+ span.count { color: grey; font-size: 0.85em; }
+ span.info { color: hsl(0, 0%, 26%); font-size: 0.65em; }
+ span[lang]::after { content: attr(lang); color: gray; font-size: 0.77em; padding-left: 3px; }
+ a[lang]::after { padding-left: 3px; }
+ h1 span[lang]::after { content: none; }
+ input#uri { width: 80%}
+</style>
