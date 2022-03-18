@@ -11,8 +11,8 @@ Uses (http.BaseHTTPRequestHandler)[https://docs.python.org/3/library/http.server
 Be careful about RAM usage, 4.9 million triples result in ~3.5 GB used! Can be higher while loading data!
 
 ## Dependencies
-- rdflib
-- inotify_simple
+- (rdflib)[https://github.com/RDFLib/rdflib]
+- (inotify_simple)[https://inotify-simple.readthedocs.io/en/latest/]
 
 ## Usage
 
