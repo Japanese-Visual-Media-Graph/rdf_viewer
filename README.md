@@ -7,12 +7,12 @@ labels using http://www.w3.org/2000/01/rdf-schema#label
 
 Only tested on Linux! 
 Not intended for public hosting!
-Uses (http.BaseHTTPRequestHandler)[https://docs.python.org/3/library/http.server.html] from python so be careful regarding security!
+Uses [http.BaseHTTPRequestHandler](https://docs.python.org/3/library/http.server.html) from python so be careful regarding security!
 Be careful about RAM usage, 4.9 million triples result in ~3.5 GB used! Can be higher while loading data!
 
 ## Dependencies
-- (rdflib)[https://github.com/RDFLib/rdflib]
-- (inotify_simple)[https://inotify-simple.readthedocs.io/en/latest/]
+- [rdflib](https://github.com/RDFLib/rdflib)
+- [inotify_simple](https://inotify-simple.readthedocs.io/en/latest/)
 
 ## Usage
 
