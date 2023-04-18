@@ -32,12 +32,18 @@
 <script>
  let sparql_data = null;
 
- async function get_data(uri){
+ async function get_data(){
    // fetch data from server
-   request_uri = location.href + (location.href.includes("?") ? "&" : "?") + (new URLSearchParams({search: uri})).toString()
 
-   data = await fetch(request_uri, {headers:{"Accept":"application/json"}})
+   let data = null;
+   data = await fetch(location.href, {headers:{"Accept":"application/json"}})
      .then(response => response.json())
+     .catch(() => {console.log("no data for: " + location.href)})
+
+   if (!data){
+     return
+   }
+
 
    // delete the old content which might be there
    for (div of document.querySelectorAll("div.data")){
@@ -144,20 +150,22 @@
  // eventListener to load new triple data if an URI is searched
  document.querySelector("#search").addEventListener("click", event => {
    let uri_field = document.querySelector("#uri")
-   get_data(uri_field.value)
+   location.href = location.origin + "/?" + (new URLSearchParams({search: uri_field.value})).toString()
    event.preventDefault()
  })
 
  // eventListener to load new triple data if an URI-link is clicked
- document.querySelector("body").addEventListener("click", event => {
-   if (event.target.matches("a span")){
+  document.querySelector("body").addEventListener("click", event => {
+   if (event.target.parentElement.matches("a")){
      let uri_field = document.querySelector("#uri")
      const uri = event.target.parentElement.href
-     uri_field.value = uri
-     get_data(uri)
-     event.preventDefault()
+     location.href = location.origin + "/?" + (new URLSearchParams({search: uri})).toString()
    }
+   event.preventDefault()
  })
+
+  get_data();
+
 
 </script>
 <style>
