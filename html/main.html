@@ -156,18 +156,25 @@
 
   // eventListener to load new triple data if an URI-link is clicked
   document.querySelector("body").addEventListener("click", event => {
-    console.log(event)
     if (event.target.matches("a")){
-      let uri_field = document.querySelector("#uri")
-      const uri = event.target.href
-      location.href = location.origin + "/?" + (new URLSearchParams({search: uri})).toString()
-    }
-    else if (event.target.parentElement.matches("a")){
-      let uri_field = document.querySelector("#uri")
-      const uri = event.target.parentElement.href
-      location.href = location.origin + "/?" + (new URLSearchParams({search: uri})).toString()
+      location.href = location.origin + "/?" + (new URLSearchParams({search: event.target.href})).toString()
+    } else if (event.target.parentElement.matches("a")){
+      location.href = location.origin + "/?" + (new URLSearchParams({search: event.target.parentElement.href})).toString()
     }
     event.preventDefault()
+  })
+
+  document.querySelector("body").addEventListener("auxclick", event => {
+    if(event.button == 1){
+      if (event.target.matches("a")){
+        const uri = location.origin + "/?" + (new URLSearchParams({search: event.target.href})).toString()
+        window.open(uri, '_blank').focus();
+      } else if (event.target.parentElement.matches("a")){
+        const uri = location.origin + "/?" + (new URLSearchParams({search: event.target.parentElement.href})).toString()
+        window.open(uri, '_blank').focus();
+      }
+      event.preventDefault()
+    }
   })
 
   get_data();
