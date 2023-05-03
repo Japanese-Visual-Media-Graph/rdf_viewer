@@ -156,7 +156,7 @@ def listen_to_file_events():
         for event in inotify.read():
             # file was saved
             if event.mask & flags.CLOSE_WRITE:
-                _, new_data = load_data_from(wd_to_path[event.wd])
+                _, new_data, _ = load_data_from(wd_to_path[event.wd])
                 file_to_data[wd_to_path[event.wd]]["data"] = new_data
             # directory was created or deleted
             elif event.mask & flags.ISDIR:
