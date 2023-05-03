@@ -162,12 +162,12 @@ def listen_to_file_events():
             elif event.mask & flags.ISDIR:
                 # directory was created, add new watchdog
                 if event.mask & flags.CREATE:
-                    ttl_folder = wd_to_path[event.wd] + event.name
+                    ttl_folder = f"{wd_to_path[event.wd]}{event.name}"
                     wd = inotify.add_watch(ttl_folder, flags.CREATE | flags.DELETE)
                     wd_to_path[wd] = ttl_folder
                 # directory was deleted remove watchdogs for directory and contained files
                 elif event.mask & flags.DELETE:
-                    folder_path = wd_to_path[event.wd] + event.name
+                    folder_path = f"{wd_to_path[event.wd]}{event.name}"
                     for file_path in list(file_to_data.keys()):
                         if folder_path in file_path:
                             del file_to_data[file_path]
@@ -182,7 +182,7 @@ def listen_to_file_events():
                     load_files_from(wd_to_path[event.wd])
                 # file was deleted, remove watchdog
                 elif event.mask & flags.DELETE:
-                    file_name = wd_to_path[event.wd] +  event.name
+                    file_name = f"{wd_to_path[event.wd]}/{event.name}"
                     del file_to_data[file_name]
                     for wd in list(wd_to_path.keys()):
                         if wd_to_path[wd] == file_name:
