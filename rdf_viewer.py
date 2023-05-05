@@ -182,7 +182,7 @@ def listen_to_file_events():
                     load_files_from(wd_to_path[event.wd])
                 # file was deleted, remove watchdog
                 elif event.mask & flags.DELETE:
-                    file_name = f"{wd_to_path[event.wd]}/{event.name}"
+                    file_name = f"{wd_to_path[event.wd]}{event.name}"
                     del file_to_data[file_name]
                     for wd in list(wd_to_path.keys()):
                         if wd_to_path[wd] == file_name:
