@@ -90,6 +90,10 @@
       const predicate_template = graph.querySelector("template.predicate")
       const tbody = graph.querySelector("tbody")
 
+      predicates.sort((a, b)=>{
+        return a.labels.map(item=>item.literal).join() > b.labels.map(item=>item.literal).join()
+      })
+
       for (const predicate of predicates){
         const tr = predicate_template.content.cloneNode(true).querySelector("tr")
         // create predicates
@@ -114,6 +118,13 @@
 
         // create objects
         objects = predicate["objects"]
+        objects.sort((a, b)=>{
+          if (!a.labels || !b.labels){
+            return a.literals > b.literals
+          } else {
+            return a.labels.map(item=>item.literal).join() > b.labels.map(item=>item.literal).join()
+          }
+        })
         const td = tr.querySelector("td:nth-of-type(2)")
         if (objects.length == 1){
           object = objects[0]
